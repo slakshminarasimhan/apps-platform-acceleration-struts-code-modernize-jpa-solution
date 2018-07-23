@@ -1,0 +1,5 @@
+org/superbiz/struts/User.class
+org/superbiz/struts/HomeController.class
+org/superbiz/struts/UsersController.class
+org/superbiz/struts/UserRepository.class
+org/superbiz/struts/Application.class
