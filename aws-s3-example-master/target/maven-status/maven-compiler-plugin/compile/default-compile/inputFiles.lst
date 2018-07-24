@@ -1,0 +1,14 @@
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/Application.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/movies/Movie.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/blobstore/S3Store.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/blobstore/BlobStore.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/albums/AlbumsController.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/blobstore/Blob.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/albums/Album.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/albums/AlbumFixtures.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/blobstore/ServiceCredentials.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/movies/MoviesBean.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/albums/AlbumsBean.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/HomeController.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/movies/MovieFixtures.java
+/Users/maclab/workspace/aws-s3-example-master/src/main/java/org/superbiz/moviefun/ActionServlet.java

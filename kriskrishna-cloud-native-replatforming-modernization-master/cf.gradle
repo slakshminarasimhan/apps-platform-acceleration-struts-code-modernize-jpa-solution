@@ -1,0 +1,98 @@
+def services = [
+    [type: "p-mysql", plan: "100mb", instance: "movie-database"],
+    [type: "p-mysql", plan: "100mb", instance: "album-database"],
+    [type: "p-identity", plan: "basic-sso", instance: "movie-fun-sso"],
+    [type: "p-service-registry", plan: "standard", instance: "movie-fun-registry"],
+    [type: "p-config-server", plan: "standard", instance: "movie-fun-config", config: "config-server.json"],
+    [type: "p-circuit-breaker-dashboard", plan: "standard", instance: "movie-fun-circuit-breaker"],
+]
+
+task teardownPcfEnv {
+    doLast {
+
+        [
+            "cf delete -f album-service",
+            "cf delete -f movie-service",
+            "cf delete -f movie-fun-app",
+        ].each { println it.execute().text }
+
+        services.each {
+            println "cf delete-service -f $it.instance".execute().text
+        }
+    }
+}
+
+def createServiceCommand(service) {
+    def command = "cf create-service $service.type $service.plan $service.instance"
+
+    if (service.config != null) {
+        command += " -c $service.config"
+    }
+
+    return command
+}
+
+task setupPcfEnv {
+    doLast {
+        services.each {
+            println createServiceCommand(it).execute().text
+        }
+    }
+}
+
+task checkCfServices {
+    doLast {
+        def serviceNames = services.collect { it.instance }
+        def counter = 0
+        def allCreated = false
+        def timeout = 274_000
+        def waitTime = 5_000
+
+        while (!allCreated) {
+            if (counter > timeout) {
+                throw new Exception("not all CF services have been created after ${timeout / 1000} seconds")
+            }
+
+            allCreated = serviceNames.inject(true) { memo, name ->
+                def status = "cf service $name".execute().text
+                def isCreated = status.contains("create succeeded")
+
+                memo && isCreated
+            }
+
+            counter += waitTime
+            sleep waitTime
+        }
+    }
+}
+
+task deploy {
+    doLast {
+        "cf push".execute().in.eachLine { line ->
+            println line
+        }
+    }
+}
+
+task setEnvVars {
+    doLast {
+        [
+            "cf set-env movie-fun-app S3_ACCESSKEY $System.env.S3_ACCESSKEY",
+            "cf set-env movie-fun-app S3_SECRETKEY $System.env.S3_SECRETKEY",
+            "cf set-env movie-fun-app S3_BUCKETNAME $System.env.S3_BUCKETNAME",
+            "cf set-env album-service S3_ACCESSKEY $System.env.S3_ACCESSKEY",
+            "cf set-env album-service S3_SECRETKEY $System.env.S3_SECRETKEY",
+            "cf set-env album-service S3_BUCKETNAME $System.env.S3_BUCKETNAME",
+        ].each { println it.execute().text }
+
+        "cf restage movie-fun-app".execute().in.eachLine { println it }
+        "cf restage album-service".execute().in.eachLine { println it }
+    }
+}
+
+setupPcfEnv.mustRunAfter teardownPcfEnv
+checkCfServices.mustRunAfter setupPcfEnv
+deploy.mustRunAfter checkCfServices
+setEnvVars.mustRunAfter deploy
+
+task resetPcfEnv(dependsOn: [teardownPcfEnv, setupPcfEnv, checkCfServices, deploy, setEnvVars])
