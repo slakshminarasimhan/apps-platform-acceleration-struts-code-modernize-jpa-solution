@@ -1,0 +1,37 @@
+---
+memory: 1G
+instances: 1
+services:
+- movie-fun-sso
+- movie-fun-registry
+env:
+  TRUST_CERTS: api.system.cumuluslabs.io,basic-sso.login.system.cumuluslabs.io
+applications:
+- name: album-service
+  env:
+    GRANT_TYPE: client_credentials
+    SSO_IDENTITY_PROVIDERS: uaa
+  path: applications/album-service/build/libs/album-service-1.1.0-SNAPSHOT.jar
+  services:
+  - album-database
+  - moviefun-s3
+  routes:
+  - route: album-service-ls.apps.cumuluslabs.io
+- name: movie-service
+  env:
+    GRANT_TYPE: client_credentials
+    SSO_IDENTITY_PROVIDERS: uaa
+  path: applications/movie-service/build/libs/movie-service-1.1.0-SNAPSHOT.jar
+  services:
+  - movie-database
+  routes:
+    - route: movie-service-ls.apps.cumuluslabs.io
+- name: movie-fun-app
+  path: applications/movie-fun-app/build/libs/movie-fun-app-1.1.0-SNAPSHOT.war
+  services:
+  - moviefun-s3
+  routes:
+      - route: movie-fun-app-ls.apps.cumuluslabs.io
+  env:
+    GRANT_TYPE: authorization_code
+    SSO_IDENTITY_PROVIDERS: uaa
