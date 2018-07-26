@@ -1,0 +1,67 @@
+buildscript {
+    ext {
+        springBootVersion = "1.4.2.RELEASE"
+        springVersion = "4.3.4.RELEASE"
+        springCloudVersion = "Camden.SR3"
+        springCloudSsoVersion = "1.1.0.RELEASE"
+        springCloudServicesVersion = "1.3.1.RELEASE"
+        springSecurityVersion = "4.1.3.RELEASE"
+
+        certTrusterVersion = "1.0.1.RELEASE"
+        hibernateVersion = "5.0.11.Final"
+        slf4jVersion = "1.7.21"
+        junitVersion = "4.12"
+        mysqlVersion = "5.1.40"
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+    }
+}
+
+task dependenciesGraphDot {
+
+    mustRunAfter "clean"
+
+    def graphBuildDir = "build/dependenciesGraph"
+    def dotFile = file "$graphBuildDir/graph.dot"
+
+    doLast {
+        delete graphBuildDir
+        mkdir graphBuildDir
+
+        dotFile << "digraph dependencies {\n"
+
+        project.subprojects.forEach { Project subProject ->
+            try {
+
+                Configuration compileConfig = subProject.configurations["compile"]
+
+                compileConfig
+                    .dependencies
+                    .grep { it.respondsTo("getDependencyProject") }
+                    .forEach { dotFile << """  "$subProject.name" -> "$it.dependencyProject.name"\n""" }
+            } catch (UnknownConfigurationException ignored) {
+            }
+        }
+        dotFile << "}\n"
+    }
+}
+
+task dependenciesGraph(dependsOn: "dependenciesGraphDot", type: Exec) {
+    workingDir "$project.buildDir/dependenciesGraph"
+    commandLine "dot", "-O", "-Tpng", "graph.dot"
+}
+
+task clean(type: Delete) {
+    delete "build"
+}
+
+defaultTasks "clean", "build", "dependenciesGraph"
+
+apply from: "cf.gradle"
