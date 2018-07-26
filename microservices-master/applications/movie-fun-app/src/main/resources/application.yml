@@ -1,0 +1,16 @@
+spring:
+  mvc:
+   view:
+    prefix: /WEB-INF/
+    suffix: .jsp
+
+s3:
+  endpointUrl: http://127.0.0.1:9000
+  accessKey: NX5GNUOO026JPRP71CL5
+  secretKey: s+hjbaLzdrQpxkVZBoreFkmNfwP+arK2ft1UtzFa
+  bucketName: moviefun
+
+albums:
+  url: http://localhost:8087/albums
+movies:
+  url: http://localhost:8082/movies
